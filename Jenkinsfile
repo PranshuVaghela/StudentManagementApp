@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE = 'Pranshu_Vaghela/student-management-app:latest'
+        IMAGE = 'pranshu_vaghela/student-management-app:latest'
     }
 
     stages {
