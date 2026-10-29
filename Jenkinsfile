@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE = 'Pranshu_Vaghela/student-management-app:latest'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -11,31 +15,45 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                bat 'python -m unittest test_app.py'
+                sh 'python3 -m unittest test_app.py'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t student-management-app:latest .'
+                sh 'docker build -t $IMAGE .'
             }
         }
 
         stage('Push Image') {
             steps {
-                echo 'Docker image will be pushed to Docker Hub'
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    sh 'docker push "$IMAGE"'
+                }
             }
         }
 
         stage('Deploy to Minikube') {
             steps {
-                echo 'Application will be deployed to Minikube'
+                sh 'kubectl apply -f k8s/deployment.yaml'
+                sh 'kubectl apply -f k8s/service.yaml'
+                sh 'kubectl rollout restart deployment/student-management-deployment'
+                sh 'kubectl rollout status deployment/student-management-deployment'
             }
         }
 
         stage('Verify') {
             steps {
-                echo 'Deployment will be verified'
+                sh 'kubectl get pods'
+                sh 'kubectl get deployment'
+                sh 'kubectl get svc'
             }
         }
     }
