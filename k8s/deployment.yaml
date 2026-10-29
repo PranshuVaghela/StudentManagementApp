@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: student-management
-          image: YOUR_DOCKERHUB_USERNAME/student-management-app:latest
+          image: Pranshu_Vaghela/student-management-app:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
