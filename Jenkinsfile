@@ -14,10 +14,11 @@ pipeline {
         }
 
         stage('Build and Test') {
-            steps {
-                sh 'python3 -m unittest test_app.py'
-            }
-        }
+    steps {
+        sh 'python3 -m pip install -r requirements.txt'
+        sh 'python3 -m unittest test_app.py'
+    }
+}
 
         stage('Docker Build') {
             steps {
